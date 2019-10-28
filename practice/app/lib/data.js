@@ -61,7 +61,7 @@ lib.update = function(dir, file, data, callback) {
 		if (!err && fileDescriptor) {
 			// convrert data to string
 			var stringData = JSON.stringify(data);
-			fs.truncate(fileDescriptor, function(err) {
+			fs.ftruncate(fileDescriptor, function(err) {
 				if(!err) {
 					// write to the file and close it
 					fs.writeFile(fileDescriptor, stringData, function(err) {

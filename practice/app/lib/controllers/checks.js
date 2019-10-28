@@ -5,7 +5,6 @@ const helpers = require('../helpers');
 const config = require('../../config');
 const _tokens = require('./tokens');
 
-
 // checks handler
 // container for all checks methods
 const _checks = {};
@@ -35,7 +34,6 @@ _checks.post = function (data, callback) {
 	const timeoutSeconds = typeof (data.payload.timeoutSeconds) == 'number' && data.payload.timeoutSeconds % 1 === 0 && data.payload.timeoutSeconds >= 1 && data.payload.timeoutSeconds <= 5 
 	? data.payload.timeoutSeconds
 	: false;
-
 
 	if (protocol && url && method && successCodes && timeoutSeconds) {
 		// get the tokens from the header
@@ -249,41 +247,36 @@ _checks.delete = function (data, callback) {
 					// celete the check data
 					_data.delete('checks', id, function(err) {
 						if(!err) {
-						_data.read('users', checkData.userPhone, function (err, userData) {
-							if (!err && userData) {
-								const userChecks = typeof (userData.checks) === 'object' && userData.checks instanceof Array ? userData.checks : [];
-								// remeve the deleted checks from the list
-								const checkPosition = userChecks.indexOf(id);
-								if(checkPosition > -1) {
-									userChecks.splice(checkPosition, 1);
-									// re-save user data
-									_data.update('users', checkData.userPhone, userData, function(err) {
-										if(!err) {
-											callback(200, {
-												'Message: ' : 'User checks list has been updated'
-											})
-										} else {
-											callback(500, {
-												'Error: ' : 'Could not upate the specified user data'
-											})
-										}
-									});
+							_data.read('users', checkData.userPhone, function (err, userData) {
+								if (!err && userData) {
+									const userChecks = typeof (userData.checks) === 'object' && userData.checks instanceof Array ? userData.checks : [];
+									// remeve the deleted checks from the list
+									const checkPosition = userChecks.indexOf(id);
+									if(checkPosition > -1) {
+										userChecks.splice(checkPosition, 1);
+										// re-save user data
+										_data.update('users', checkData.userPhone, userData, function(err) {
+											if(!err) {
+												callback(200, {
+													'Message: ' : 'User checks list has been updated'
+												})
+											} else {
+												callback(500, {
+													'Error: ' : 'Could not upate the specified user data'
+												})
+											}
+										});
+									} else {
+										callback(500, {
+											'Error: ' : 'Could not find the check in the list'
+										});
+									}
 								} else {
 									callback(500, {
-										'Error: ' : 'Could not find the check in the list'
+										'Error: ': 'Could not find the user who created the check'
 									});
 								}
-							} else {
-								callback(500, {
-									'Error: ': 'Could not find the user who created the check'
-								});
-							}
-						});
-
-
-
-
-
+							});
 						} else {
 							callback(500, {
 								'Error: ' : 'Could not delete this check'
